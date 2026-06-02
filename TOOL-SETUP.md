@@ -32,13 +32,13 @@ python scripts/preflight_provider.py --provider openrouter
 
 ## 2. Tavily — `lookup`
 
-- Docs/credits: https://docs.tavily.com/documentation/api-credits
-- API key page: https://app.tavily.com
+- Docs/credits: [https://docs.tavily.com/documentation/api-credits](https://docs.tavily.com/documentation/api-credits)
+- API key page: [https://app.tavily.com](https://app.tavily.com)
 - Classroom target: free plan with 1,000 API credits/month.
 
 Setup:
 
-1. Sign in at https://app.tavily.com.
+1. Sign in at [https://app.tavily.com](https://app.tavily.com).
 2. Create or copy API key.
 3. Add to `starter_v0/.env`:
 
@@ -54,13 +54,13 @@ python -c "from tools import TOOL_FUNCTIONS as T; print(T['lookup']('AI', max_re
 
 ## 3. Firecrawl — `fetch`
 
-- Pricing: https://www.firecrawl.dev/pricing
-- Docs: https://docs.firecrawl.dev
+- Pricing: [https://www.firecrawl.dev/pricing](https://www.firecrawl.dev/pricing)
+- Docs: [https://docs.firecrawl.dev](https://docs.firecrawl.dev)
 - Classroom target: free plan with 1,000 credits/month.
 
 Setup:
 
-1. Sign up at https://www.firecrawl.dev.
+1. Sign up at [https://www.firecrawl.dev](https://www.firecrawl.dev).
 2. Create API key.
 3. Add to `starter_v0/.env`:
 
@@ -76,13 +76,13 @@ python -c "from tools import TOOL_FUNCTIONS as T; print(T['fetch']('https://open
 
 ## 4. RapidAPI Twitter API45 — `timeline`, `social_search`
 
-- API page: https://rapidapi.com/alexanderxbx/api/twitter-api45
+- API page: [https://rapidapi.com/alexanderxbx/api/twitter-api45](https://rapidapi.com/alexanderxbx/api/twitter-api45)
 - Classroom target: free plan with 1,000 requests/month.
 
 Setup:
 
 1. Sign in to RapidAPI.
-2. Open https://rapidapi.com/alexanderxbx/api/twitter-api45.
+2. Open [https://rapidapi.com/alexanderxbx/api/twitter-api45](https://rapidapi.com/alexanderxbx/api/twitter-api45).
 3. Subscribe to the API plan.
 4. Copy RapidAPI key.
 5. Add to `starter_v0/.env`:
@@ -124,8 +124,8 @@ Bonus action tool that posts text to a Telegram channel.
 
 Official links:
 
-- BotFather: https://t.me/BotFather
-- Bot docs: https://core.telegram.org/bots
+- BotFather: [https://t.me/BotFather](https://t.me/BotFather)
+- Bot docs: [https://core.telegram.org/bots](https://core.telegram.org/bots)
 
 ### Create Bot
 
@@ -137,20 +137,20 @@ Official links:
 /newbot
 ```
 
-4. Enter display name, for example:
+1. Enter display name, for example:
 
 ```text
 AI20k Research Bot
 ```
 
-5. Enter username ending in `bot`, for example:
+1. Enter username ending in `bot`, for example:
 
 ```text
 ai20k_research_demo_bot
 ```
 
-6. Copy the token BotFather returns.
-7. Add to `starter_v0/.env`:
+1. Copy the token BotFather returns.
+2. Add to `starter_v0/.env`:
 
 ```bash
 TELEGRAM_BOT_TOKEN=1234567890:AA....
@@ -182,13 +182,13 @@ For a private channel:
 curl "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/getUpdates"
 ```
 
-4. Find:
+1. Find:
 
 ```json
 "chat": {"id": -1001234567890}
 ```
 
-5. Add to `.env`:
+1. Add to `.env`:
 
 ```bash
 TELEGRAM_CHAT_ID=-1001234567890
@@ -211,3 +211,4 @@ Before class, at least one person per group should have:
 - optional `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`
 - optional `ARXIV_USER_AGENT`
 - `python scripts/preflight_provider.py --provider openrouter` passes
+
