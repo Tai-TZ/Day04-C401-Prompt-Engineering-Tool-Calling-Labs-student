@@ -9,7 +9,7 @@
 tools:
   # ---------------- Core tools ----------------
   - name: clarify
-    description: "Gửi một câu hỏi cho người dùng."
+    description: "Hỏi lại user khi thiếu thông tin (handle, URL) hoặc cần xác nhận trước hành động gửi. Dùng response_type=yes_no trước khi send."
     parameters:
       type: object
       properties:
@@ -19,7 +19,7 @@ tools:
       required: [question]
 
   - name: timeline
-    description: "Lấy các bài đăng gần đây."
+    description: "Lấy bài đăng gần đây của MỘT tài khoản Twitter/X cụ thể (screenname). Dùng khi user hỏi tweet CỦA một người."
     parameters:
       type: object
       properties:
@@ -28,7 +28,7 @@ tools:
       required: [screenname]
 
   - name: social_search
-    description: "Tìm trên mạng xã hội."
+    description: "Tìm tweet/bài đăng theo CHỦ ĐỀ trên Twitter/X. Không dùng khi user chỉ muốn tin web hoặc đã bỏ Twitter."
     parameters:
       type: object
       properties:
@@ -38,7 +38,7 @@ tools:
       required: [query]
 
   - name: lookup
-    description: "Tra cứu thông tin trên internet."
+    description: "Tìm tin trên web. topic=news cho tin tức; timeframe day/week theo hôm nay/tuần này. query là từ khóa ngắn (vd AI)."
     parameters:
       type: object
       properties:
@@ -79,7 +79,7 @@ tools:
 
   # ---------------- Bonus tools ----------------
   - name: send
-    description: "Gửi một đoạn văn bản đi."
+    description: "Gửi text lên Telegram. Chỉ gọi khi user đã xác nhận (confirmed=true)."
     parameters:
       type: object
       properties:
