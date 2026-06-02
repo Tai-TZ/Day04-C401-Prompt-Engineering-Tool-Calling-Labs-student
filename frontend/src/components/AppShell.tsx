@@ -1,5 +1,5 @@
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { Activity, LogOut, MessageSquare, Sparkles } from "lucide-react";
+import { Activity, LogOut, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
@@ -21,11 +21,9 @@ export function AppShell() {
     <div className="min-h-screen flex bg-background text-foreground">
       <aside className="w-[232px] shrink-0 border-r border-border bg-sidebar flex flex-col">
         <Link to="/" className="px-5 pt-5 pb-6 flex items-center gap-3 hover:opacity-90 transition-opacity">
-          <div className="size-10 rounded-2xl bg-gradient-to-br from-primary/30 to-primary/10 grid place-items-center text-primary ring-1 ring-primary/20">
-            <Sparkles className="size-5" />
-          </div>
+          <img src="/logo.png" alt="Arionear logo" className="size-10 rounded-xl object-contain bg-background p-1 ring-1 ring-primary/20" />
           <div className="leading-tight">
-            <div className="text-[11px] text-muted-foreground">AI Assistant</div>
+            <div className="text-sm font-semibold text-foreground">Arionear</div>
           </div>
         </Link>
         <nav className="flex-1 px-3 space-y-1">

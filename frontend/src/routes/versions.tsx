@@ -6,7 +6,7 @@ import { versionLog, systemPromptContent } from "@/lib/mock-data";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/versions")({
-  head: () => ({ meta: [{ title: "Version History — Research Agent Lab" }] }),
+  head: () => ({ meta: [{ title: "Version History — Arionear" }] }),
   component: VersionsPage,
 });
 

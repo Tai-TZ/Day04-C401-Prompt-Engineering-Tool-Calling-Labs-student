@@ -20,7 +20,7 @@ const suggestions = [
 ];
 
 const mockReplies = [
-  "I can help with that. Based on your OpenClaw setup, I'd start by reviewing the latest run logs and checking which tools were invoked.",
+  "I can help with that. Based on your Arionear setup, I'd start by reviewing the latest run logs and checking which tools were invoked.",
   "Here's a concise approach: define clear tool boundaries, keep the system prompt focused, and validate tool outputs before passing them back to the model.",
   "Tool calling works best when each tool has a single responsibility and the model receives explicit instructions on when to use it versus answering directly.",
 ];
@@ -58,8 +58,8 @@ function ChatPage() {
     <div className="flex flex-col h-[calc(100vh)]">
       <header className="shrink-0 flex items-center justify-between px-6 h-14 border-b border-border">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Sparkles className="size-4 text-primary" />
-          <span className="text-foreground font-medium">OpenClaw Chat</span>
+          <img src="/logo.png" alt="Arionear Chat logo" className="size-4 rounded object-contain" />
+          <span className="text-foreground font-medium">Arionear Chat</span>
         </div>
         {hasMessages && (
           <button
@@ -144,11 +144,11 @@ function ChatPage() {
         <div className="max-w-3xl mx-auto">
           <PromptInputBox
             isLoading={isTyping}
-            placeholder="Ask OpenClaw anything..."
+            placeholder="Ask Arionear anything..."
             onSend={(text) => sendMessage(text)}
           />
           <p className="text-center text-[11px] text-muted-foreground mt-3">
-            OpenClaw can make mistakes. Verify important information.
+            Arionear can make mistakes. Verify important information.
           </p>
         </div>
       </div>

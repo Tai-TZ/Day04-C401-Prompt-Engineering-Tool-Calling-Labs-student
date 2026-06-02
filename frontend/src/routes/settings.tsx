@@ -6,7 +6,7 @@ import { toolsSchema, transcripts } from "@/lib/mock-data";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/settings")({
-  head: () => ({ meta: [{ title: "Artifacts & Settings — Research Agent Lab" }] }),
+  head: () => ({ meta: [{ title: "Artifacts & Settings — Arionear" }] }),
   component: SettingsPage,
 });
 

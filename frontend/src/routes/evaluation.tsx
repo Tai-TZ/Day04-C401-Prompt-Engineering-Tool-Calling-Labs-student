@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { trendData, failureBreakdown, testCases, evalVersions, type TestCase } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/evaluation")({
-  head: () => ({ meta: [{ title: "Evaluation — Research Agent Lab" }] }),
+  head: () => ({ meta: [{ title: "Evaluation — Arionear" }] }),
   component: EvalPage,
 });
 
