@@ -1,11 +1,18 @@
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { Activity, MessageSquare, Sparkles } from "lucide-react";
+import { Activity, LogOut, MessageSquare, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const navItems = [
   { label: "Overview", icon: Activity, to: "/" as const },
   { label: "Chat", icon: MessageSquare, to: "/chat" as const },
 ];
+
+const currentUser = {
+  name: "Alex Morgan",
+  email: "alex@lumina.ai",
+  initials: "A",
+};
 
 export function AppShell() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -18,7 +25,6 @@ export function AppShell() {
             <Sparkles className="size-5" />
           </div>
           <div className="leading-tight">
-            <div className="text-[16px] font-semibold tracking-tight">OpenClaw</div>
             <div className="text-[11px] text-muted-foreground">AI Assistant</div>
           </div>
         </Link>
@@ -46,10 +52,26 @@ export function AppShell() {
             );
           })}
         </nav>
-        <div className="p-4 border-t border-border">
-          <div className="flex items-center gap-2 text-xs">
-            <span className="size-2 rounded-full bg-success animate-pulse" />
-            <span className="text-foreground">Agent Online</span>
+        <div className="p-3 border-t border-border space-y-3">
+          <div className="flex items-center gap-2.5 rounded-lg p-1.5 hover:bg-accent/60 transition-colors group">
+            <Link to="/settings" className="flex min-w-0 flex-1 items-center gap-2.5">
+              <Avatar className="size-9">
+                <AvatarFallback className="bg-gradient-to-br from-sky-400 via-violet-500 to-fuchsia-500 text-sm font-semibold text-white">
+                  {currentUser.initials}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0 leading-tight">
+                <div className="truncate text-sm font-medium text-foreground">{currentUser.name}</div>
+                <div className="truncate text-[11px] text-muted-foreground">{currentUser.email}</div>
+              </div>
+            </Link>
+            <button
+              type="button"
+              className="shrink-0 size-8 grid place-items-center rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+              aria-label="Logout"
+            >
+              <LogOut className="size-4" />
+            </button>
           </div>
         </div>
       </aside>
