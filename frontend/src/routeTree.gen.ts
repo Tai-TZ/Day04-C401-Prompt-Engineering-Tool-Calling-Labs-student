@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as VersionsRouteImport } from './routes/versions'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as EvaluationRouteImport } from './routes/evaluation'
+import { Route as ChatRouteImport } from './routes/chat'
 import { Route as IndexRouteImport } from './routes/index'
 
 const VersionsRoute = VersionsRouteImport.update({
@@ -29,6 +30,11 @@ const EvaluationRoute = EvaluationRouteImport.update({
   path: '/evaluation',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -37,12 +43,14 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
   '/evaluation': typeof EvaluationRoute
   '/settings': typeof SettingsRoute
   '/versions': typeof VersionsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
   '/evaluation': typeof EvaluationRoute
   '/settings': typeof SettingsRoute
   '/versions': typeof VersionsRoute
@@ -50,20 +58,22 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
   '/evaluation': typeof EvaluationRoute
   '/settings': typeof SettingsRoute
   '/versions': typeof VersionsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/evaluation' | '/settings' | '/versions'
+  fullPaths: '/' | '/chat' | '/evaluation' | '/settings' | '/versions'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/evaluation' | '/settings' | '/versions'
-  id: '__root__' | '/' | '/evaluation' | '/settings' | '/versions'
+  to: '/' | '/chat' | '/evaluation' | '/settings' | '/versions'
+  id: '__root__' | '/' | '/chat' | '/evaluation' | '/settings' | '/versions'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ChatRoute: typeof ChatRoute
   EvaluationRoute: typeof EvaluationRoute
   SettingsRoute: typeof SettingsRoute
   VersionsRoute: typeof VersionsRoute
@@ -92,6 +102,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EvaluationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -104,6 +121,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ChatRoute: ChatRoute,
   EvaluationRoute: EvaluationRoute,
   SettingsRoute: SettingsRoute,
   VersionsRoute: VersionsRoute,
@@ -111,3 +129,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
