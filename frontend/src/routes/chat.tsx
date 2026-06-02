@@ -1,13 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import {
-  ArrowUp,
-  Mic,
-  Paperclip,
-  Sparkles,
-  SquarePen,
-} from "lucide-react";
+import { Sparkles, SquarePen } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { PromptInputBox } from "@/components/ui/ai-prompt-box";
 
 export const Route = createFileRoute("/chat")({ component: ChatPage });
 
@@ -32,10 +27,8 @@ const mockReplies = [
 
 function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const hasMessages = messages.length > 0;
 
@@ -43,20 +36,12 @@ function ChatPage() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, isTyping]);
 
-  useEffect(() => {
-    const el = textareaRef.current;
-    if (!el) return;
-    el.style.height = "auto";
-    el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
-  }, [input]);
-
   function sendMessage(text: string) {
     const trimmed = text.trim();
     if (!trimmed || isTyping) return;
 
     const userMsg: Message = { id: crypto.randomUUID(), role: "user", content: trimmed };
     setMessages((prev) => [...prev, userMsg]);
-    setInput("");
     setIsTyping(true);
 
     window.setTimeout(() => {
@@ -67,18 +52,6 @@ function ChatPage() {
       ]);
       setIsTyping(false);
     }, 900);
-  }
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    sendMessage(input);
-  }
-
-  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage(input);
-    }
   }
 
   return (
@@ -168,49 +141,16 @@ function ChatPage() {
       </div>
 
       <div className="shrink-0 px-4 sm:px-6 pb-6 pt-2">
-        <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
-          <div className="relative flex items-end gap-2 rounded-3xl border border-border bg-card shadow-lg shadow-black/20 px-2 py-2 focus-within:border-primary/40 focus-within:ring-1 focus-within:ring-primary/20 transition-all">
-            <button
-              type="button"
-              className="shrink-0 size-10 grid place-items-center rounded-full text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-              aria-label="Attach file"
-            >
-              <Paperclip className="size-5" />
-            </button>
-            <textarea
-              ref={textareaRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask OpenClaw anything..."
-              rows={1}
-              className="flex-1 resize-none bg-transparent py-2.5 text-[15px] placeholder:text-muted-foreground focus:outline-none min-h-[44px] max-h-40"
-            />
-            <button
-              type="button"
-              className="shrink-0 size-10 grid place-items-center rounded-full text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-              aria-label="Voice input"
-            >
-              <Mic className="size-5" />
-            </button>
-            <button
-              type="submit"
-              disabled={!input.trim() || isTyping}
-              className={cn(
-                "shrink-0 size-10 grid place-items-center rounded-full transition-colors",
-                input.trim() && !isTyping
-                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                  : "bg-muted text-muted-foreground cursor-not-allowed",
-              )}
-              aria-label="Send message"
-            >
-              <ArrowUp className="size-5" />
-            </button>
-          </div>
+        <div className="max-w-3xl mx-auto">
+          <PromptInputBox
+            isLoading={isTyping}
+            placeholder="Ask OpenClaw anything..."
+            onSend={(text) => sendMessage(text)}
+          />
           <p className="text-center text-[11px] text-muted-foreground mt-3">
             OpenClaw can make mistakes. Verify important information.
           </p>
-        </form>
+        </div>
       </div>
     </div>
   );
