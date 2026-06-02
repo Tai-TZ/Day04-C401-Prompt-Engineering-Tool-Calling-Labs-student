@@ -17,6 +17,10 @@ from .policy.tool import search_company_policy
 from .social_search.tool import search_tweets
 from .send.tool import send_telegram
 from .lookup.tool import web_search
+from .facebook_search.tool import facebook_search
+from .tiktok_download.tool import tiktok_download
+from .summarize_url.tool import summarize_url
+from .github_repo_search.tool import github_repo_search
 
 
 # NOTE (starter_v0): tool names here are intentionally vague. These keys are the
@@ -29,6 +33,10 @@ TOOL_FUNCTIONS = {
     "timeline": get_user_tweets,
     "social_search": search_tweets,
     "lookup": web_search,
+    "facebook_search": facebook_search,
+    "tiktok_download": tiktok_download,
+    "summarize_url": summarize_url,
+    "github_repo_search": github_repo_search,
     "fetch": read_url,
     "format": render_digest,
     "send": send_telegram,

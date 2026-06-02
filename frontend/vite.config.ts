@@ -8,6 +8,13 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
   nitro: { preset: "vercel" },
+  vite: {
+    server: {
+      // Allow Cloudflare Tunnel hostnames during classroom demos.
+      // Using `true` avoids Vite's host-blocking for random trycloudflare subdomains.
+      allowedHosts: true,
+    },
+  },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this

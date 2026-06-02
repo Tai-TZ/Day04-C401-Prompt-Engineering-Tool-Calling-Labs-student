@@ -7,6 +7,7 @@ import { getChat, sendChatMessage } from "@/lib/chat/chat.functions";
 import type { ChatRound, Conversation } from "@/lib/chat/types";
 import { z } from "zod";
 import { ToolRounds } from "@/components/chat/ToolRounds";
+import ReactMarkdown from "react-markdown";
 
 export const Route = createFileRoute("/chat")({
   validateSearch: z.object({ cid: z.string().optional() }),
@@ -197,7 +198,57 @@ function ChatPage() {
                         : "text-foreground/95",
                     )}
                   >
-                    {msg.content}
+                    {msg.role === "assistant" ? (
+                      <ReactMarkdown
+                        components={{
+                          a: ({ children, ...props }) => (
+                            <a
+                              {...props}
+                              className="underline underline-offset-4 hover:opacity-80"
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              {children}
+                            </a>
+                          ),
+                          ul: ({ children, ...props }) => (
+                            <ul {...props} className="list-disc pl-5 space-y-1">
+                              {children}
+                            </ul>
+                          ),
+                          ol: ({ children, ...props }) => (
+                            <ol {...props} className="list-decimal pl-5 space-y-1">
+                              {children}
+                            </ol>
+                          ),
+                          p: ({ children, ...props }) => (
+                            <p {...props} className="whitespace-pre-wrap">
+                              {children}
+                            </p>
+                          ),
+                          code: ({ children, ...props }) => (
+                            <code
+                              {...props}
+                              className="rounded bg-muted px-1 py-0.5 font-mono text-[13px]"
+                            >
+                              {children}
+                            </code>
+                          ),
+                          pre: ({ children, ...props }) => (
+                            <pre
+                              {...props}
+                              className="mt-2 overflow-x-auto rounded-lg bg-muted p-3 font-mono text-[13px]"
+                            >
+                              {children}
+                            </pre>
+                          ),
+                        }}
+                      >
+                        {msg.content}
+                      </ReactMarkdown>
+                    ) : (
+                      <span className="whitespace-pre-wrap">{msg.content}</span>
+                    )}
                   </div>
                   {msg.role === "assistant" && msg.rounds && msg.rounds.length > 0 && (
                     <ToolRounds rounds={msg.rounds} />

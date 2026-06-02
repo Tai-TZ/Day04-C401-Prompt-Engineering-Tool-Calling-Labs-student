@@ -5,6 +5,7 @@ import re
 import time
 import xml.etree.ElementTree as ET
 from typing import Any
+from urllib.parse import urlencode
 
 import requests
 
@@ -45,8 +46,32 @@ def _arxiv_search_query(query: str) -> str:
     cleaned = " ".join((query or "").split())
     if ":" in cleaned:
         return cleaned
-    terms = [term for term in re.findall(r"[A-Za-z0-9_\\-]+", cleaned) if len(term) > 1]
-    return " AND ".join(f"all:{term}" for term in terms[:8]) or cleaned
+
+    # Build a query that searches both title (ti) and abstract (abs).
+    # Example output:
+    #   (ti:"rag y te" OR abs:"rag y te") AND (ti:RAG OR abs:RAG) AND (ti:y_te OR abs:y_te)
+    phrases: list[str] = []
+    # Keep user-provided quoted phrases.
+    for m in re.finditer(r"\"([^\"]+)\"", cleaned):
+        phrase = " ".join(m.group(1).split())
+        if phrase:
+            phrases.append(phrase)
+    # If no explicit quoted phrase, treat the whole cleaned string as one phrase
+    # (useful for Vietnamese multi-word ideas).
+    if not phrases and len(cleaned) >= 4:
+        phrases.append(cleaned)
+
+    terms = [t for t in re.findall(r"[A-Za-z0-9_\\-]+", cleaned) if len(t) > 1]
+    terms = terms[:6]
+
+    def clause(value: str) -> str:
+        v = value.replace('"', "")
+        if " " in v:
+            v = f"\"{v}\""
+        return f"(ti:{v} OR abs:{v})"
+
+    parts = [clause(p) for p in phrases] + [clause(t) for t in terms]
+    return " AND ".join(dict.fromkeys(parts)) or cleaned
 
 
 def _arxiv_id(value: str) -> str:
@@ -103,6 +128,7 @@ def arxiv_search(query: str = "", max_results: int = 5, sort_by: str = "relevanc
             "tool": "arxiv_search",
             "query": query,
             "api_query": params["search_query"],
+            "api_url": f"{ARXIV_API_URL}?{urlencode(params)}",
             "total_results": int(total_node.text) if total_node is not None and total_node.text else None,
             "items": entries,
             "rate_limit_note": "arXiv may return 429 if called too frequently; this tool waits at least 3 seconds between requests in-process.",

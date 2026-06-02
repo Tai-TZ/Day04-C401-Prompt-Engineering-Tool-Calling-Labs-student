@@ -116,3 +116,48 @@ tools:
         max_pages: {type: integer, default: 5, description: "Số trang"}
         max_chars: {type: integer, default: 8000, description: "Số ký tự"}
       required: [arxiv_url]
+
+  - name: facebook_search
+    description: "Tìm kiếm nội dung Facebook (posts/pages/people/events/videos/hashtags) qua RapidAPI Facebook Scraper3."
+    parameters:
+      type: object
+      properties:
+        resource:
+          type: string
+          enum: [posts, pages, people, groups_posts, events, videos, hashtags]
+          default: posts
+          description: "Loại tài nguyên Facebook cần tìm"
+        query: {type: string, default: "", description: "Từ khóa tìm kiếm"}
+        limit: {type: integer, default: 5, description: "Số lượng kết quả"}
+        cursor: {type: string, default: "", description: "Cursor phân trang (nếu có)"}
+      required: [resource, query]
+
+  - name: tiktok_download
+    description: "Lấy link tải video TikTok (ưu tiên no-watermark nếu có) qua RapidAPI TikTok Downloader26."
+    parameters:
+      type: object
+      properties:
+        url: {type: string, default: "", description: "URL video TikTok"}
+      required: [url]
+
+  - name: summarize_url
+    description: "Tóm tắt nhanh nội dung một URL (fetch + summary + key points). Dùng khi user đưa link và muốn tóm tắt."
+    parameters:
+      type: object
+      properties:
+        url: {type: string, default: "", description: "URL cần tóm tắt"}
+        max_chars: {type: integer, default: 8000, description: "Giới hạn ký tự để xử lý"}
+      required: [url]
+
+  - name: github_repo_search
+    description: "Tìm repository GitHub theo ý tưởng/chủ đề. Hỗ trợ lọc language/framework, min stars và sort (stars/forks/updated). Token PAT là tuỳ chọn."
+    parameters:
+      type: object
+      properties:
+        idea: {type: string, default: "", description: "Ý tưởng/Từ khoá dự án (vd: rag chatbot)"}
+        language_or_framework: {type: string, default: "", description: "Ngôn ngữ hoặc framework (vd: Python, TypeScript, NextJS). Có thể để trống."}
+        min_stars: {type: integer, default: 50, description: "Số sao tối thiểu (vd: 50, 100)"}
+        sort: {type: string, enum: [stars, forks, updated], default: "stars", description: "Tiêu chí sắp xếp"}
+        max_results: {type: integer, default: 5, description: "Số kết quả trả về"}
+        token: {type: string, default: "", description: "GitHub Personal Access Token (tuỳ chọn)"}
+      required: [idea]
