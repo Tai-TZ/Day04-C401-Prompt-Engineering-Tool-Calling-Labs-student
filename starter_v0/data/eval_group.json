@@ -1,7 +1,251 @@
 {
   "dataset_id": "day04_v2_research_group",
   "dataset_role": "group",
-  "description": "Case do NHÓM tự viết thêm để cover thêm trường hợp. Mỗi case cần: id, phase='B', query HOẶC turns, failure_type (thuộc allowed_failure_types), và expect (tool_calls[...] hoặc no_tool=true). Nên kèm metadata.what_it_tests.",
+  "description": "Case do NHÓM tự viết thêm — cover tool mới (GitHub, Facebook, TikTok, summarize_url) và bonus (papers, policy). 5 single turn + 5 multi turn.",
   "allowed_failure_types": ["wrong_tool", "wrong_arg_value", "wrong_boundary", "unnecessary_tool", "out_of_scope", "missing_info"],
-  "cases": []
+  "cases": [
+    {
+      "id": "G01_github_repo_routing",
+      "phase": "B",
+      "suite": "group",
+      "query": "Tìm repo GitHub về RAG chatbot dùng Python, ít nhất 100 sao",
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "github_repo_search",
+            "args": {
+              "idea": "RAG chatbot",
+              "language_or_framework": "Python",
+              "min_stars": 100
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "routing_github_repo",
+        "difficulty": "medium",
+        "what_it_tests": "Yêu cầu tìm repo GitHub theo ý tưởng + ngôn ngữ + min stars → github_repo_search."
+      }
+    },
+    {
+      "id": "G02_summarize_url_routing",
+      "phase": "B",
+      "suite": "group",
+      "query": "Tóm tắt giúp mình bài này: https://openai.com/blog/chatgpt",
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "summarize_url",
+            "args": {
+              "url": "https://openai.com/blog/chatgpt"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "routing_summarize_url",
+        "difficulty": "easy",
+        "what_it_tests": "User đưa URL và muốn tóm tắt → summarize_url (ưu tiên hơn fetch)."
+      }
+    },
+    {
+      "id": "G03_facebook_posts_routing",
+      "phase": "B",
+      "suite": "group",
+      "query": "Tìm bài post Facebook nói về AI agent",
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "facebook_search",
+            "args": {
+              "resource": "posts",
+              "query": "AI agent"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "routing_facebook_posts",
+        "difficulty": "easy",
+        "what_it_tests": "User muốn post Facebook → facebook_search resource=posts."
+      }
+    },
+    {
+      "id": "G04_tiktok_download_routing",
+      "phase": "B",
+      "suite": "group",
+      "query": "Tải link video TikTok không watermark: https://www.tiktok.com/@openai/video/7234567890123456789",
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "tiktok_download",
+            "args": {
+              "url": "https://www.tiktok.com/@openai/video/7234567890123456789"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "routing_tiktok_download",
+        "difficulty": "easy",
+        "what_it_tests": "User đưa URL TikTok và muốn tải → tiktok_download."
+      }
+    },
+    {
+      "id": "G05_papers_routing",
+      "phase": "B",
+      "suite": "group",
+      "query": "Tìm paper trên arXiv về LLM tool calling",
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "papers",
+            "args": {
+              "query": "LLM tool calling"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "routing_arxiv_papers",
+        "difficulty": "easy",
+        "what_it_tests": "Yêu cầu tìm paper arXiv → papers tool."
+      }
+    },
+    {
+      "id": "G06_clarify_then_tiktok",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Tải video TikTok giúp mình"},
+        {"role": "user", "content": "https://www.tiktok.com/@demo/video/7123456789012345678"},
+        {"role": "user", "content": "Đúng link đó, lấy bản no watermark"}
+      ],
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "tiktok_download",
+            "args": {
+              "url": "https://www.tiktok.com/@demo/video/7123456789012345678"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "multiturn_tiktok_url",
+        "difficulty": "medium",
+        "what_it_tests": "3 turns: sau khi user cung cấp URL TikTok, latest turn gọi tiktok_download đúng url."
+      }
+    },
+    {
+      "id": "G07_github_language_correction",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Tìm repo GitHub về fine-tuning LLM"},
+        {"role": "user", "content": "Chỉ Python thôi"},
+        {"role": "user", "content": "Ít nhất 50 sao, sort theo stars"}
+      ],
+      "failure_type": "wrong_arg_value",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "github_repo_search",
+            "args": {
+              "idea": "fine-tuning LLM",
+              "language_or_framework": "Python",
+              "min_stars": 50,
+              "sort": "stars"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "multiturn_github_args",
+        "difficulty": "hard",
+        "what_it_tests": "3 turns: carry idea, thêm language Python, min_stars=50, sort=stars."
+      }
+    },
+    {
+      "id": "G08_facebook_switch_pages",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Tìm post Facebook về OpenAI"},
+        {"role": "user", "content": "Không, tìm page Facebook của OpenAI"},
+        {"role": "user", "content": "Chỉ page thôi nhé"}
+      ],
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "facebook_search",
+            "args": {
+              "resource": "pages",
+              "query": "OpenAI"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "multiturn_facebook_resource",
+        "difficulty": "hard",
+        "what_it_tests": "3 turns: user sửa từ posts sang pages → facebook_search resource=pages."
+      }
+    },
+    {
+      "id": "G09_clarify_then_summarize",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Tóm tắt bài viết này giúp"},
+        {"role": "user", "content": "https://anthropic.com/news/claude-3"},
+        {"role": "user", "content": "Dùng summarize, không cần fetch raw"}
+      ],
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "summarize_url",
+            "args": {
+              "url": "https://anthropic.com/news/claude-3"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "multiturn_summarize_url",
+        "difficulty": "medium",
+        "what_it_tests": "3 turns: sau khi có URL, latest turn gọi summarize_url đúng link."
+      }
+    },
+    {
+      "id": "G10_policy_citation",
+      "phase": "B",
+      "suite": "group",
+      "query": "Tìm trong policy nội bộ về trích dẫn nguồn khi publish bài viết",
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "policy",
+            "args": {
+              "query": "trích dẫn nguồn publish"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "routing_policy",
+        "difficulty": "medium",
+        "what_it_tests": "Câu hỏi policy nội bộ → policy tool, không phải web search."
+      }
+    }
+  ]
 }
