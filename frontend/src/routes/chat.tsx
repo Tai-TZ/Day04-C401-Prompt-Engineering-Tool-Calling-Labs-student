@@ -3,13 +3,21 @@ import { useEffect, useRef, useState } from "react";
 import { Sparkles, SquarePen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PromptInputBox } from "@/components/ui/ai-prompt-box";
+import { getChat, sendChatMessage } from "@/lib/chat/chat.functions";
+import type { ChatRound, Conversation } from "@/lib/chat/types";
+import { z } from "zod";
+import { ToolRounds } from "@/components/chat/ToolRounds";
 
-export const Route = createFileRoute("/chat")({ component: ChatPage });
+export const Route = createFileRoute("/chat")({
+  validateSearch: z.object({ cid: z.string().optional() }),
+  component: ChatPage,
+});
 
 type Message = {
   id: string;
   role: "user" | "assistant";
   content: string;
+  rounds?: ChatRound[];
 };
 
 const suggestions = [
@@ -19,15 +27,12 @@ const suggestions = [
   "Debug a failed tool invocation",
 ];
 
-const mockReplies = [
-  "I can help with that. Based on your OpenClaw setup, I'd start by reviewing the latest run logs and checking which tools were invoked.",
-  "Here's a concise approach: define clear tool boundaries, keep the system prompt focused, and validate tool outputs before passing them back to the model.",
-  "Tool calling works best when each tool has a single responsibility and the model receives explicit instructions on when to use it versus answering directly.",
-];
-
 function ChatPage() {
+  const { cid } = Route.useSearch();
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [activeConversation, setActiveConversation] = useState<Conversation | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const hasMessages = messages.length > 0;
@@ -36,7 +41,53 @@ function ChatPage() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, isTyping]);
 
-  function sendMessage(text: string) {
+  function streamAssistantMessage(messageId: string, fullText: string, rounds?: ChatRound[]) {
+    const text = fullText ?? "";
+    const chunkSize = 18;
+    let i = 0;
+    const timer = window.setInterval(() => {
+      i = Math.min(text.length, i + chunkSize);
+      const partial = text.slice(0, i);
+      setMessages((prev) =>
+        prev.map((m) => (m.id === messageId ? { ...m, content: partial } : m)),
+      );
+      if (i >= text.length) {
+        window.clearInterval(timer);
+        if (rounds && rounds.length > 0) {
+          setMessages((prev) =>
+            prev.map((m) => (m.id === messageId ? { ...m, rounds } : m)),
+          );
+        }
+        setIsTyping(false);
+      }
+    }, 20);
+  }
+
+  useEffect(() => {
+    if (!cid) return;
+    let alive = true;
+    getChat({ data: { conversation_id: cid } }).then((conv) => {
+      if (!alive || !conv) return;
+      setConversationId(conv.conversation_id);
+      setActiveConversation(conv as Conversation);
+      const mapped: Message[] = [];
+      for (const turn of (conv as Conversation).turns) {
+        mapped.push({ id: crypto.randomUUID(), role: "user", content: turn.user });
+        mapped.push({
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content: turn.assistant_text,
+          rounds: (turn.rounds as ChatRound[]) ?? [],
+        });
+      }
+      setMessages(mapped);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [cid]);
+
+  async function sendMessage(text: string) {
     const trimmed = text.trim();
     if (!trimmed || isTyping) return;
 
@@ -44,14 +95,35 @@ function ChatPage() {
     setMessages((prev) => [...prev, userMsg]);
     setIsTyping(true);
 
-    window.setTimeout(() => {
-      const reply = mockReplies[Math.floor(Math.random() * mockReplies.length)];
+    try {
+      const res = await sendChatMessage({
+        data: {
+          conversation_id: conversationId ?? undefined,
+          user_text: trimmed,
+          provider: "openrouter",
+          model: null,
+          version: "ui",
+          history_window: 5,
+          max_tool_rounds: 4,
+        },
+      });
+
+      setConversationId(res.conversation_id);
+      setActiveConversation(res.conversation);
+      const assistantId = crypto.randomUUID();
       setMessages((prev) => [
         ...prev,
-        { id: crypto.randomUUID(), role: "assistant", content: reply },
+        {
+          id: assistantId,
+          role: "assistant",
+          content: "",
+        },
       ]);
-      setIsTyping(false);
-    }, 900);
+      // Stream the assistant text into the UI (client-side streaming).
+      streamAssistantMessage(assistantId, res.assistant_text, (res.rounds as ChatRound[]) ?? []);
+    } finally {
+      // `setIsTyping(false)` is handled by the streamer completion above.
+    }
   }
 
   return (
@@ -64,7 +136,11 @@ function ChatPage() {
         {hasMessages && (
           <button
             type="button"
-            onClick={() => setMessages([])}
+            onClick={() => {
+              setMessages([]);
+              setConversationId(null);
+              setActiveConversation(null);
+            }}
             className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
             <SquarePen className="size-3.5" />
@@ -112,15 +188,20 @@ function ChatPage() {
                     <Sparkles className="size-4" />
                   </div>
                 )}
-                <div
-                  className={cn(
-                    "max-w-[85%] text-[15px] leading-relaxed",
-                    msg.role === "user"
-                      ? "rounded-3xl rounded-br-md bg-secondary px-4 py-3 text-foreground"
-                      : "text-foreground/95 pt-1",
+                <div className={cn("max-w-[85%]", msg.role === "user" ? "" : "pt-1")}>
+                  <div
+                    className={cn(
+                      "text-[15px] leading-relaxed",
+                      msg.role === "user"
+                        ? "rounded-3xl rounded-br-md bg-secondary px-4 py-3 text-foreground"
+                        : "text-foreground/95",
+                    )}
+                  >
+                    {msg.content}
+                  </div>
+                  {msg.role === "assistant" && msg.rounds && msg.rounds.length > 0 && (
+                    <ToolRounds rounds={msg.rounds} />
                   )}
-                >
-                  {msg.content}
                 </div>
               </div>
             ))}
@@ -134,6 +215,11 @@ function ChatPage() {
                   <span className="size-2 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:150ms]" />
                   <span className="size-2 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:300ms]" />
                 </div>
+              </div>
+            )}
+            {activeConversation?.turns?.at(-1)?.status === "waiting_for_user" && (
+              <div className="text-xs text-warning">
+                Awaiting your input to continue.
               </div>
             )}
           </div>
