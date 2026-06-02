@@ -1,11 +1,12 @@
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { Activity, LogOut, MessageSquare } from "lucide-react";
+import { Activity, History, LogOut, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const navItems = [
   { label: "Overview", icon: Activity, to: "/" as const },
   { label: "Chat", icon: MessageSquare, to: "/chat" as const },
+  { label: "History", icon: History, to: "/history" as const },
 ];
 
 const currentUser = {
