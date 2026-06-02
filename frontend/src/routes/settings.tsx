@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { AlertTriangle, Check, X, RefreshCw, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { systemPromptContent, toolsSchema, transcripts } from "@/lib/mock-data";
+import { toolsSchema, transcripts } from "@/lib/mock-data";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/settings")({
@@ -18,7 +18,12 @@ const preflight = [
 ];
 
 function SettingsPage() {
-  const [prompt, setPrompt] = useState(systemPromptContent);
+  const [telegramConfig, setTelegramConfig] = useState({
+    botToken: "",
+    chatId: "",
+    enabled: false,
+    testMode: true,
+  });
   const [edited, setEdited] = useState(false);
   const [checking, setChecking] = useState(false);
 
@@ -26,13 +31,13 @@ function SettingsPage() {
     <div className="p-6 space-y-6 max-w-6xl mx-auto">
       <h1 className="text-2xl font-semibold tracking-tight">Artifacts & Settings</h1>
 
-      {/* System prompt */}
+      {/* Telegram config */}
       <section className="bg-card border border-border rounded-lg overflow-hidden">
         <div className="flex items-center gap-2 p-4 border-b border-border">
-          <h2 className="text-sm font-semibold">System prompt</h2>
-          <code className="text-xs font-mono text-muted-foreground">artifacts/system_prompt.md</code>
+          <h2 className="text-sm font-semibold">Telegram configuration</h2>
+          <code className="text-xs font-mono text-muted-foreground">env: TELEGRAM_*</code>
           <button
-            onClick={() => { setEdited(false); toast.success("System prompt saved"); }}
+            onClick={() => { setEdited(false); toast.success("Telegram settings saved"); }}
             disabled={!edited}
             className="ml-auto h-8 px-3 rounded-md bg-primary text-primary-foreground text-xs font-medium disabled:opacity-50"
           >
@@ -41,13 +46,63 @@ function SettingsPage() {
         </div>
         <div className="px-4 py-3 bg-warning/10 border-b border-warning/30 flex items-start gap-2">
           <AlertTriangle className="size-4 text-warning shrink-0 mt-0.5" />
-          <p className="text-xs text-warning">Modifying the active system prompt directly impacts ongoing evaluation metrics.</p>
+          <p className="text-xs text-warning">Do not commit the bot token to git. Store secrets in local environment variables.</p>
         </div>
-        <textarea
-          value={prompt}
-          onChange={(e) => { setPrompt(e.target.value); setEdited(true); }}
-          className="w-full bg-background font-mono text-xs p-4 min-h-[280px] outline-none resize-y"
-        />
+        <div className="p-4 space-y-4">
+          <div className="space-y-1.5">
+            <label className="text-xs text-muted-foreground">Bot token</label>
+            <input
+              type="password"
+              value={telegramConfig.botToken}
+              onChange={(e) => {
+                setTelegramConfig((prev) => ({ ...prev, botToken: e.target.value }));
+                setEdited(true);
+              }}
+              placeholder="123456:ABC-YourTelegramBotToken"
+              className="w-full h-9 px-3 rounded-md bg-background border border-border text-xs font-mono outline-none focus:ring-2 focus:ring-primary/40"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs text-muted-foreground">Target chat ID</label>
+            <input
+              value={telegramConfig.chatId}
+              onChange={(e) => {
+                setTelegramConfig((prev) => ({ ...prev, chatId: e.target.value }));
+                setEdited(true);
+              }}
+              placeholder="-1001234567890 or 123456789"
+              className="w-full h-9 px-3 rounded-md bg-background border border-border text-xs font-mono outline-none focus:ring-2 focus:ring-primary/40"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <label className="flex items-center justify-between rounded-md border border-border bg-background px-3 py-2">
+              <span className="text-xs">Enable notifications</span>
+              <input
+                type="checkbox"
+                checked={telegramConfig.enabled}
+                onChange={(e) => {
+                  setTelegramConfig((prev) => ({ ...prev, enabled: e.target.checked }));
+                  setEdited(true);
+                }}
+                className="size-4 accent-primary"
+              />
+            </label>
+            <label className="flex items-center justify-between rounded-md border border-border bg-background px-3 py-2">
+              <span className="text-xs">Test mode only</span>
+              <input
+                type="checkbox"
+                checked={telegramConfig.testMode}
+                onChange={(e) => {
+                  setTelegramConfig((prev) => ({ ...prev, testMode: e.target.checked }));
+                  setEdited(true);
+                }}
+                className="size-4 accent-primary"
+              />
+            </label>
+          </div>
+        </div>
       </section>
 
       {/* Tools schema */}
